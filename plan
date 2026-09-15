@@ -1,0 +1,65 @@
+Here is the structured breakdown to ensure we hit 90%+ on this submission, directly addressing the evaluator feedback from Weeks 1 and 2.
+
+Step 1: Requirements Summary & Deliverables
+Core Focus: TDD approach, comprehensive unit & integration tests, boundary & edge case handling, and modular architecture.
+
+Primary Framework: pytest (or unittest), with zero external dataset dependencies (fully self-contained).
+
+Key Evidence Needed to Avoid Past Score Drops:
+
+Concrete before-and-after code snippets for refactoring/bug fixes.
+
+Exact test execution logs showing pass/fail status and coverage metrics.
+
+Clear mapping: Module Feature → Test Input → Expected Output → Actual Output → Verification Status.
+
+Deliverables:
+
+Source code module (src/)
+
+Test suite (tests/)
+
+README.md (Setup, execution steps, TDD process)
+
+Documentation & Bug/Refactor Logs (docs/)
+
+report.docx (Word report with before/after code evidence & test output screenshots/logs)
+
+Clean ZIP file and GitHub Repo link
+
+Step 2: Practical Phase-by-Phase Execution Plan
+Phase 1: Project Setup & Architecture Blueprint (Directory structure, environment setup, initial Git repo).
+
+Phase 2: TDD Cycle 1 - Core Operations (Write failing tests first, implement features, pass tests, refactor).
+
+Phase 3: TDD Cycle 2 - Edge Cases & Data Validation (Corrupt inputs, empty datasets, invalid types, rollbacks).
+
+Phase 4: Integration Testing & Coverage Analysis (Pipeline tests, high coverage check).
+
+Phase 5: Refactoring & Evidence Documentation (Log before-and-after snippets, performance/clarity refactoring).
+
+Phase 6: Final Documentation, Report (report.docx), Audit & ZIP Packaging.
+
+Step 3: Weakness Prevention Strategy (Evaluator Feedback Alignment)
+To fix the exact issues that lowered your Week 1 and Week 2 scores, every bug fix or refactor recorded in the report will follow this strict format:
+
+Plaintext
+Issue / Refactor: Missing numerical validation in scaling method
+What was expected: Throw ValueError on string input inside numerical list
+What actually happened: TypeError raised deep in loop without custom message
+Steps to reproduce: Call scaler.fit_transform([10, "invalid", 30])
+Before Code:
+  def scale(data):
+      return [x / max(data) for x in data]
+Why it failed: No pre-validation on element types; crashes ungracefully.
+After Code:
+  def scale(data):
+      if not data: raise ValueError("Dataset cannot be empty")
+      if not all(isinstance(x, (int, float)) for x in data):
+          raise TypeError("All elements must be numerical")
+      ...
+Why fix works: Explicit type check provides clear early exit and standard exception type.
+Test Input: [10, "invalid", 30]
+Expected Result: TypeError("All elements must be numerical")
+Actual Result: TypeError("All elements must be numerical")
+Verification Status: PASS (test_scale_invalid_type)

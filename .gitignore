@@ -1,0 +1,10 @@
+plan
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+venv/
+.env
+*.zip
+.idea/
