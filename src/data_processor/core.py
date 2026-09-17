@@ -41,3 +41,24 @@ class TextCleaner:
         cleaned = text.strip().lower()
         cleaned = re.sub(r'[^\w\s]', '', cleaned)
         return re.sub(r'\s+', ' ', cleaned)
+
+class DataPipeline:
+    """Combines text cleaning and numerical scaling into an end-to-end pipeline."""
+
+    def __init__(self):
+        self.cleaner = TextCleaner()
+        self.scaler = DataScaler()
+
+    def process_dataset(self, text_list: List[str], number_list: List[Union[int, float]]) -> dict:
+        """Processes text and numerical data together, returning clean structured output."""
+        if not isinstance(text_list, list) or not isinstance(number_list, list):
+            raise TypeError("Both text_list and number_list must be Python lists.")
+
+        cleaned_texts = [self.cleaner.clean_text(t) for t in text_list]
+        scaled_numbers = self.scaler.min_max_scale(number_list)
+
+        return {
+            "cleaned_text": cleaned_texts,
+            "scaled_numbers": scaled_numbers,
+            "record_count": len(cleaned_texts)
+        }
