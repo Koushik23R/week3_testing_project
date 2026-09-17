@@ -19,6 +19,21 @@ class TestDataScaler(unittest.TestCase):
         result = self.scaler.min_max_scale(data)
         self.assertEqual(result, expected)
 
+    def test_min_max_scale_empty_list(self):
+        """Test handling of empty input list."""
+        self.assertEqual(self.scaler.min_max_scale([]), [])
+
+    def test_min_max_scale_invalid_elements(self):
+        """Test that TypeError is raised when input contains non-numeric data."""
+        with self.assertRaises(TypeError):
+            self.scaler.min_max_scale([10.0, "invalid", 30.0])
+
+    def test_min_max_scale_invalid_type(self):
+        """Test that TypeError is raised when input is not a list."""
+        with self.assertRaises(TypeError):
+            self.scaler.min_max_scale("not a list")
+
+
 class TestTextCleaner(unittest.TestCase):
     def setUp(self):
         self.cleaner = TextCleaner()
@@ -29,6 +44,16 @@ class TestTextCleaner(unittest.TestCase):
         expected = "hello world welcome to aiml"
         result = self.cleaner.clean_text(raw_text)
         self.assertEqual(result, expected)
+
+    def test_clean_text_non_string_input(self):
+        """Test that TypeError is raised when input is not a string."""
+        with self.assertRaises(TypeError):
+            self.cleaner.clean_text(12345)
+
+    def test_clean_text_empty(self):
+        """Test that empty string returns empty string."""
+        self.assertEqual(self.cleaner.clean_text(""), "")
+
 
 if __name__ == "__main__":
     unittest.main()
