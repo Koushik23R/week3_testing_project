@@ -1,10 +1,10 @@
+##Author: Koushik R
+
+##Role: Junior Python Developer (YuvaIntern)
+
 # Data Preprocessing Engine - Automated Testing & TDD Suite
 
 A robust, lightweight Python data preprocessing module designed to clean string fields and normalize numerical features for Machine Learning workflows. Developed using strict Test-Driven Development (TDD) principles with full Unit and Integration test coverage.
-
-### Author: Koushik R
-
-### Role: Junior Python Developer (YuvaIntern)
 
 ## Project Structure
 
