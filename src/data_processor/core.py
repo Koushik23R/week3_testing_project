@@ -54,6 +54,9 @@ class DataPipeline:
         if not isinstance(text_list, list) or not isinstance(number_list, list):
             raise TypeError("Both text_list and number_list must be Python lists.")
 
+        if len(text_list) != len(number_list):
+            raise ValueError("text_list and number_list must contain the same number of items.")
+
         cleaned_texts = [self.cleaner.clean_text(t) for t in text_list]
         scaled_numbers = self.scaler.min_max_scale(number_list)
 

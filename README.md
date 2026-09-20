@@ -1,25 +1,25 @@
-## Author: Koushik R
-## Role: Junior Python Developer (YuvaIntern)
-
 # Data Preprocessing Engine
 
-A lightweight Python project for cleaning text and normalizing numerical data for machine learning and data preparation workflows. The project follows a Test-Driven Development (TDD) approach and includes both unit tests and integration tests for validation.
+**Author:** Koushik R
+**Project:** YuvaIntern Week 3 testing and TDD exercise
 
-## Overview
+A small, standard-library-only Python toolkit for cleaning text, normalizing numerical data, and processing both kinds of data together.
 
-This repository contains a simple data processing toolkit with three main components:
+## Features
 
-- `DataScaler`: normalizes numeric lists into a min-max range of `[0, 1]`
-- `TextCleaner`: trims whitespace, lowercases strings, removes punctuation, and collapses repeated spaces
-- `DataPipeline`: combines both operations into a single end-to-end processing workflow
+- `DataScaler` normalizes numeric lists to the `[0, 1]` range using min-max scaling.
+- `TextCleaner` trims whitespace, converts text to lowercase, removes punctuation, and collapses repeated whitespace.
+- `DataPipeline` combines text cleaning and numerical scaling and returns structured results.
+- Inputs are validated with clear `TypeError` and `ValueError` exceptions.
+- Empty lists and constant numeric series are handled safely. A constant series returns a list of `0.0` values.
+- Tests use Python's built-in `unittest` framework.
 
-## Key Features
+## Requirements
 
-- Strict input validation for numeric and string data
-- Safe handling of empty input lists
-- Protection against division-by-zero when all numeric values are identical
-- Clean, reproducible preprocessing logic for ML-style datasets
-- Unit and integration tests for functional correctness
+- Python 3.13 or a compatible Python 3 release
+- No third-party runtime dependencies
+
+The `requirements.txt` file documents the standard-library-only test setup.
 
 ## Project Structure
 
@@ -34,87 +34,71 @@ week3_testing_project/
 │   ├── test_core.py
 │   └── test_integration.py
 ├── docs/
-│   └── BUG_AND_REFACTOR_LOG.md
+│   ├── BUG_AND_REFACTOR_LOG.md
+│   ├── TDD_EVIDENCE.md
+│   └── TEST_RESULTS.md
 ├── README.md
+├── WEEK3_REPORT.md
 ├── requirements.txt
-├── .gitignore
-└── report.doc
-```
-
-## Requirements
-
-This project uses the Python standard library only, so no external dependencies are required.
-
-```bash
-python --version
+└── report.docx
 ```
 
 ## Setup
 
-1. Clone the repository
-2. Open the project folder in your terminal
-3. Ensure Python 3 is available
+Clone the repository, change into its directory, and confirm that Python is available:
 
 ```bash
 cd week3_testing_project
+python --version
 ```
+
+No package installation is required.
 
 ## Usage
 
 ```python
-from src.data_processor.core import DataScaler, TextCleaner, DataPipeline
+from src.data_processor.core import DataPipeline, DataScaler, TextCleaner
 
 scaler = DataScaler()
 print(scaler.min_max_scale([10, 20, 30, 40]))
-# Output: [0.0, 0.3333, 0.6667, 1.0]
+# [0.0, 0.3333, 0.6667, 1.0]
 
 cleaner = TextCleaner()
 print(cleaner.clean_text("  Hello, World! Welcome  "))
-# Output: "hello world welcome"
+# hello world welcome
 
 pipeline = DataPipeline()
 result = pipeline.process_dataset(
     ["  FEATURE A: high  ", "Feature B: LOW! "],
-    [100, 200]
+    [100, 200],
 )
 print(result)
+# {
+#     "cleaned_text": ["feature a high", "feature b low"],
+#     "scaled_numbers": [0.0, 1.0],
+#     "record_count": 2,
+# }
 ```
 
-Expected output includes:
-
-```python
-{
-    "cleaned_text": ["feature a high", "feature b low"],
-    "scaled_numbers": [0.0, 1.0],
-    "record_count": 2
-}
-```
+`DataPipeline.process_dataset` requires both arguments to be lists of equal length. Text values must be strings, and numeric values must be integers or floats; booleans are rejected as numeric values.
 
 ## Running Tests
 
-Use the built-in unittest framework:
+Run the test discovery command from the repository root:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-This project includes:
+The current working tree discovers 10 tests. The existing integration test fixture for invalid numeric input uses lists of different lengths, so the pipeline raises its length-mismatch `ValueError` before reaching numeric validation. The intended mismatch-length test is currently nested inside another test method and is not discovered by `unittest`.
 
-- Unit tests for `DataScaler` and `TextCleaner`
-- Integration tests for `DataPipeline`
+Test and TDD records are available in:
 
-## TDD and Refactoring Notes
-
-The codebase was developed with a TDD workflow, including input validation and bug-fix tracking. See the documentation log for details on refactors and verification:
-
+- `docs/TEST_RESULTS.md`
+- `docs/TDD_EVIDENCE.md`
 - `docs/BUG_AND_REFACTOR_LOG.md`
-
-## Notes
-
-- Empty input lists are handled cleanly.
-- Constant numeric series return a zero vector instead of raising a division-by-zero error.
-- Invalid types raise `TypeError` with clear messages for easier debugging.
+- `WEEK3_REPORT.md`
 
 ## License
 
-This project is intended for educational and learning purposes within the internship workflow.
+This project is intended for educational and internship use.
