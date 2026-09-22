@@ -1,39 +1,108 @@
 import unittest
+
 from src.data_processor.core import DataPipeline
+
 
 class TestDataPipelineIntegration(unittest.TestCase):
     def setUp(self):
         self.pipeline = DataPipeline()
 
     def test_pipeline_end_to_end_success(self):
-        """Test full pipeline processing with valid multi-modal data."""
-        raw_texts = ["  FEATURE A: high  ", "Feature B: LOW! "]
-        raw_scores = [100.0, 200.0]
+        result = self.pipeline.process_dataset(
+            ["  FEATURE A: high  ", "Feature B: LOW! "],
+            [100, 200],
+        )
+        self.assertEqual(result, {
+            "cleaned_text": ["feature a high", "feature b low"],
+            "scaled_numbers": [0.0, 1.0],
+            "record_count": 2,
+        })
 
-        result = self.pipeline.process_dataset(raw_texts, raw_scores)
+    def test_pipeline_multiple_records(self):
+        result = self.pipeline.process_dataset(
+            ["First record", "Second record", "Third record"],
+            [10, 20, 30],
+        )
+        self.assertEqual(result["cleaned_text"], [
+            "first record",
+            "second record",
+            "third record",
+        ])
+        self.assertEqual(result["scaled_numbers"], [0.0, 0.5, 1.0])
+        self.assertEqual(result["record_count"], 3)
 
-        expected_texts = ["feature a high", "feature b low"]
-        expected_scores = [0.0, 1.0]
+    def test_pipeline_single_record(self):
+        result = self.pipeline.process_dataset(["  One! "], [42])
+        self.assertEqual(result, {
+            "cleaned_text": ["one"],
+            "scaled_numbers": [0.0],
+            "record_count": 1,
+        })
 
-        self.assertEqual(result["cleaned_text"], expected_texts)
-        self.assertEqual(result["scaled_numbers"], expected_scores)
-        self.assertEqual(result["record_count"], 2)
+    def test_pipeline_empty_dataset(self):
+        self.assertEqual(
+            self.pipeline.process_dataset([], []),
+            {
+                "cleaned_text": [],
+                "scaled_numbers": [],
+                "record_count": 0,
+            },
+        )
 
-    def test_pipeline_invalid_input_propagation(self):
-        """Test that invalid numeric input inside pipeline correctly raises TypeError."""
-        raw_texts = ["Sample text 1", "Sample text 2"]
-        invalid_scores = [100.0, "invalid_element"]  # Same length (2 elements)
+    def test_pipeline_constant_numbers(self):
+        result = self.pipeline.process_dataset(
+            ["A", "B", "C"],
+            [7, 7, 7],
+        )
+        self.assertEqual(result["scaled_numbers"], [0.0, 0.0, 0.0])
+        self.assertEqual(result["record_count"], 3)
 
-        with self.assertRaises(TypeError):
-            self.pipeline.process_dataset(raw_texts, invalid_scores)
+    def test_pipeline_mixed_integer_and_float_values(self):
+        result = self.pipeline.process_dataset(
+            ["Low", "Middle", "High"],
+            [1, 2.5, 4],
+        )
+        self.assertEqual(result["scaled_numbers"], [0.0, 0.5, 1.0])
+
+    def test_pipeline_invalid_numeric_values(self):
+        for value, expected_message in (
+            ("invalid", "got: str"),
+            (True, "got: bool"),
+        ):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(
+                    TypeError,
+                    rf"All items in data must be integers or floats, {expected_message}",
+                ):
+                    self.pipeline.process_dataset(["Sample"], [value])
+
+    def test_pipeline_invalid_text_value(self):
+        with self.assertRaisesRegex(
+            TypeError,
+            r"Input must be a string, got: int",
+        ):
+            self.pipeline.process_dataset([123], [10])
+
+    def test_pipeline_invalid_list_types(self):
+        with self.assertRaisesRegex(
+            TypeError,
+            r"Both text_list and number_list must be Python lists\.",
+        ):
+            self.pipeline.process_dataset(("text",), [10])
+
+        with self.assertRaisesRegex(
+            TypeError,
+            r"Both text_list and number_list must be Python lists\.",
+        ):
+            self.pipeline.process_dataset(["text"], (10,))
 
     def test_pipeline_mismatched_lengths(self):
-        """Test that mismatched list lengths raise ValueError."""
-        raw_texts = ["Text 1", "Text 2"]
-        mismatched_scores = [100.0]  # Mismatched length (2 vs 1)
+        with self.assertRaisesRegex(
+            ValueError,
+            r"text_list and number_list must contain the same number of items\.",
+        ):
+            self.pipeline.process_dataset(["a", "b"], [10])
 
-        with self.assertRaises(ValueError):
-            self.pipeline.process_dataset(raw_texts, mismatched_scores)
 
 if __name__ == "__main__":
     unittest.main()
