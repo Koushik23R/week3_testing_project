@@ -1,4 +1,6 @@
-# TDD Refactoring & Evidence Log
+# TDD Refactoring and Evidence Log
+
+The current regression suite contains 32 tests. The entries below retain the original bug evidence and identify the tests that protect each fix.
 
 ## Issue 1: Missing Validation for Non-Numeric Elements in DataScaler
 
@@ -72,4 +74,13 @@ return [round((x - min_val) / range_val, 4) for x in data]
 * **Test input**: `[5.0, 5.0, 5.0]`
 * **Expected result**: `[0.0, 0.0, 0.0]`
 * **Actual result**: `[0.0, 0.0, 0.0]`
-* **Verification status**: `PASS` (`test_min_max_scale_single_value`)
+* **Verification status**: `PASS` (`test_min_max_scale_constant_values`, `test_min_max_scale_single_value`)
+
+---
+
+## Issue 3: Pipeline Records Could Become Misaligned
+
+* **Issue/Bug**: Text and numeric lists could have different lengths, making it impossible to associate every cleaned text value with the intended number.
+* **What was expected**: Reject mismatched lists before either component processes the data.
+* **Fix**: `DataPipeline.process_dataset` now raises `ValueError` with the message `text_list and number_list must contain the same number of items.`
+* **Verification status**: `PASS` (`test_pipeline_mismatched_lengths`), using `assertRaisesRegex` to verify the type and message.

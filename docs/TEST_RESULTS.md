@@ -1,39 +1,51 @@
-# Week 3 Test Execution Results & Metrics
+# Week 3 Test Execution Results and Metrics
 
-## Environment Specifications
-- **Python Version:** Python 3.13 / Standard Library
-- **Test Framework:** `unittest`
-- **Execution Command:** `python -m unittest discover -s tests -v`
+## Environment
 
----
+| Item | Recorded value |
+| --- | --- |
+| Python | 3.13.3 |
+| Framework | Python `unittest` |
+| Operating environment | Windows |
+| Command | `python -m unittest discover -s tests -v` |
 
-## Complete Terminal Execution Output
+## Test Summary
+
+| Metric | Actual result |
+| --- | ---: |
+| Total tests | 32 |
+| Passed | 32 |
+| Failed | 0 |
+| Errors | 0 |
+| Pass rate | 100% |
+| Execution time | 0.007 sec |
+
+The duration is the value printed by `unittest` on the recorded run and may vary by machine.
+
+## Representative Terminal Output
 
 ```text
-test_min_max_scale_empty_list (test_core.TestDataScaler.test_min_max_scale_empty_list)
-Test handling of empty input list. ... ok
-test_min_max_scale_invalid_elements (test_core.TestDataScaler.test_min_max_scale_invalid_elements)
-Test that TypeError is raised when input contains non-numeric data. ... ok
-test_min_max_scale_invalid_type (test_core.TestDataScaler.test_min_max_scale_invalid_type)
-Test that TypeError is raised when input is not a list. ... ok
-test_min_max_scale_normal (test_core.TestDataScaler.test_min_max_scale_normal)
-Test standard min-max normalization to [0, 1] range. ... ok
-test_min_max_scale_single_value (test_core.TestDataScaler.test_min_max_scale_single_value)
-Test min-max scale when min == max (division by zero handling). ... ok
-test_clean_text_empty (test_core.TestTextCleaner.test_clean_text_empty)
-Test that empty string returns empty string. ... ok
-test_clean_text_non_string_input (test_core.TestTextCleaner.test_clean_text_non_string_input)
-Test that TypeError is raised when input is not a string. ... ok
-test_clean_text_normal (test_core.TestTextCleaner.test_clean_text_normal)
-Test lowercasing, trimming, and punctuation removal. ... ok
-test_pipeline_end_to_end_success (test_integration.TestDataPipelineIntegration.test_pipeline_end_to_end_success)
-Test full pipeline processing with valid multi-modal data. ... ok
-test_pipeline_invalid_input_propagation (test_integration.TestDataPipelineIntegration.test_pipeline_invalid_input_propagation)
-Test that invalid numeric input inside pipeline correctly raises TypeError. ... ok
-test_pipeline_mismatched_lengths (test_integration.TestDataPipelineIntegration.test_pipeline_mismatched_lengths)
-Test that mismatched list lengths raise ValueError. ... ok
-
+test_min_max_scale_normal (test_core.TestDataScaler.test_min_max_scale_normal) ... ok
+test_clean_text_unicode (test_core.TestTextCleaner.test_clean_text_unicode) ... ok
+test_pipeline_end_to_end_success (test_integration.TestDataPipelineIntegration.test_pipeline_end_to_end_success) ... ok
+test_pipeline_mismatched_lengths (test_integration.TestDataPipelineIntegration.test_pipeline_mismatched_lengths) ... ok
+...
 ----------------------------------------------------------------------
-Ran 11 tests in 0.011s
+Ran 32 tests in 0.007s
 
 OK
+```
+
+The ellipsis shortens the verbose listing only; all 32 tests were executed by the command above. No failures or errors were recorded.
+
+## Coverage Result
+
+Source coverage was measured separately with:
+
+```text
+coverage erase
+coverage run --source=src -m unittest discover -s tests
+coverage report -m
+```
+
+That run also executed 32 tests successfully. The source-only result was 38 statements, 0 missed, and 100% coverage. See [`COVERAGE_REPORT.md`](COVERAGE_REPORT.md).

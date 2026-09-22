@@ -1,0 +1,2 @@
+# Optional development dependency used for source coverage measurement.
+coverage>=7.0

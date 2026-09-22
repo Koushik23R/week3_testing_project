@@ -1,46 +1,34 @@
-# Comprehensive TDD Development & Refactoring Trail
+# TDD Development and Refactoring Evidence
 
-This document details the **Test-Driven Development (TDD) lifecycle — Red → Green → Refactor** followed during the development of the Data Preprocessing Engine.
-
----
+This document preserves the project's **Red -> Green -> Refactor** evidence. The current executable suite contains 32 tests; the historical cycles below describe the behavior that was implemented and then protected with regression tests.
 
 ## Cycle 1: Core Numerical Normalization
 
-**Requirement:**
-Scale numerical lists to the range `[0, 1]`.
+**Requirement:** Scale numerical lists to the range `[0, 1]`.
 
-### RED Phase
+### RED
 
-Executed `test_min_max_scale_normal` before the `DataScaler` implementation was available, resulting in an `ImportError`.
+`test_min_max_scale_normal` was executed before the `DataScaler` implementation was available and failed with an `ImportError`.
 
-### GREEN Phase
+### GREEN
 
-Implemented the `min_max_scale` method to process valid numerical lists using Min-Max normalization.
+`DataScaler.min_max_scale` was implemented using min-max normalization.
 
-### REFACTOR Phase
+### REFACTOR
 
-Improved the implementation by rounding the resulting values to **4 decimal places** for consistent output.
-
----
+The result was rounded to four decimal places for consistent output. The current regression test is `TestDataScaler.test_min_max_scale_normal`.
 
 ## Cycle 2: Non-Numeric Element Validation
 
-**Requirement:**
-Reject lists containing non-numeric elements, such as strings mixed with numerical values, with an explicit `TypeError`.
+**Requirement:** Reject invalid elements with a clear `TypeError`.
 
-### RED Phase
+### RED
 
-Tested the input:
+The input `[10.0, "invalid", 30.0]` reached `min()`/`max()` without validation and produced an unhelpful comparison error.
 
-```python
-[10.0, "invalid", 30.0]
-```
+### GREEN
 
-The implementation failed during the `min()`/`max()` calculation because the input contained an invalid data type.
-
-### GREEN Phase
-
-Added explicit input validation before performing numerical calculations:
+Explicit validation was added before numerical calculations:
 
 ```python
 for item in data:
@@ -51,60 +39,43 @@ for item in data:
         )
 ```
 
-### REFACTOR Phase
+### REFACTOR
 
-Ensured that invalid elements are detected before any `min()` or `max()` operation is performed, resulting in a clear and predictable error.
+The validation now rejects strings, `None`, and booleans consistently. `test_min_max_scale_invalid_elements` and the pipeline invalid-input tests assert both type and message.
 
----
+## Cycle 3: Constant-Series Division-by-Zero Handling
 
-## Cycle 3: Division-by-Zero Handling
+**Requirement:** Process a constant series without a `ZeroDivisionError`.
 
-**Requirement:**
-Prevent errors when all values in the input list are identical.
+### RED
 
-Example:
+`[5.0, 5.0, 5.0]` produced a zero denominator when the range was calculated.
 
-```python
-[5.0, 5.0, 5.0]
-```
+### GREEN
 
-### RED Phase
-
-Executed the constant-value test before adding zero-range handling. The implementation resulted in a `ZeroDivisionError`.
-
-### GREEN Phase
-
-Added a zero-range check:
+The implementation added a zero-range guard:
 
 ```python
 range_val = max_val - min_val
-
 if range_val == 0:
     return [0.0 for _ in data]
 ```
 
-### REFACTOR Phase
+### REFACTOR
 
-Verified that constant numerical input is handled safely and produces:
-
-```python
-[0.0, 0.0, 0.0]
-```
-
----
+The behavior is now explicitly covered by both `test_min_max_scale_single_value` and `test_min_max_scale_constant_values`, plus the pipeline constant-number integration test.
 
 ## Cycle 4: Data Pipeline Input Validation
 
-**Requirement:**
-Ensure that `DataPipeline` rejects mismatched text and numerical input lengths.
+**Requirement:** Keep paired text and numerical records aligned.
 
-### RED Phase
+### RED
 
-Executed `test_pipeline_mismatched_lengths`. The initial implementation allowed inputs with different lengths to be processed without raising an appropriate error.
+The initial pipeline accepted lists with different lengths and could not guarantee record alignment.
 
-### GREEN Phase
+### GREEN
 
-Added explicit length validation:
+Length validation was added:
 
 ```python
 if len(text_list) != len(number_list):
@@ -113,18 +84,17 @@ if len(text_list) != len(number_list):
     )
 ```
 
-### REFACTOR Phase
+### REFACTOR
 
-Verified that mismatched input lengths are rejected cleanly with an explicit `ValueError`.
+`test_pipeline_mismatched_lengths` now uses `assertRaisesRegex`, and the integration suite also checks invalid list containers, invalid text, numeric validation propagation, empty input, and output metadata.
 
----
+## Evidence Map
 
-## TDD Summary
-
-The development process followed the **Red → Green → Refactor** methodology:
-
-1. **Red** — Identify a failing test or missing behaviour.
-2. **Green** — Implement the minimum required functionality to satisfy the requirement.
-3. **Refactor** — Improve validation, readability, consistency, and robustness while keeping the tests passing.
-
-The TDD cycles covered numerical normalization, input validation, division-by-zero handling, and end-to-end data pipeline validation.
+| TDD concern | Current evidence |
+| --- | --- |
+| Numerical normalization | `tests/test_core.py`, `DataScaler` tests |
+| Invalid numeric input | `test_min_max_scale_invalid_elements`, pipeline invalid numeric tests |
+| Constant-series safety | `test_min_max_scale_constant_values`, pipeline constant test |
+| Pipeline alignment | `test_pipeline_mismatched_lengths` |
+| Refactoring record | `docs/BUG_AND_REFACTOR_LOG.md` |
+| Scenario rationale | `docs/TEST_CASE_CATALOG.md` |
